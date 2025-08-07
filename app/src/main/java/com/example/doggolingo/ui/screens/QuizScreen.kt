@@ -88,7 +88,7 @@ fun QuizScreen(modifier: Modifier = Modifier, viewModel: DoggoViewModel) {
                 text = it,
                 result = answerResult,
                 answer = question.answer,
-                onClick = dropUnlessStarted { viewModel.checkAnswer(question.id, it) }
+                onClick = dropUnlessStarted { viewModel.checkAnswer(questionId, it) }
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.example.doggolingo.domain
 
-import android.content.Context
 import com.example.doggolingo.domain.models.Question
 
 /**
@@ -16,5 +15,5 @@ interface DoggoRepository {
     /**
      * Gets questions and preload images
      */
-    suspend fun loadQuestions(context: Context, breeds: Set<String>): List<Question>
+    suspend fun loadQuestions(breeds: Set<String>): List<Question>
 }

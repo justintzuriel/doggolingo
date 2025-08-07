@@ -1,6 +1,5 @@
 package com.example.doggolingo.ui
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.doggolingo.domain.DoggoRepository
@@ -23,7 +22,9 @@ import javax.inject.Inject
  * Manages quiz state, user answers, and navigation
  */
 @HiltViewModel
-class DoggoViewModel @Inject constructor(val repository: DoggoRepository) : ViewModel() {
+class DoggoViewModel @Inject constructor(
+    private val repository: DoggoRepository
+) : ViewModel() {
 
     private val _navEvent = MutableSharedFlow<NavigationEvent>()
     val navEvent: SharedFlow<NavigationEvent>
@@ -54,12 +55,12 @@ class DoggoViewModel @Inject constructor(val repository: DoggoRepository) : View
         }
     }
 
-    fun loadQuiz(context: Context) {
+    fun loadQuiz() {
         cancelQuizLoad()
+        resetQuizState()
         loadJob = viewModelScope.launch {
             breeds = repository.getAllBreeds()
-            resetQuizState()
-            _questions.addAll(repository.loadQuestions(context, breeds))
+            _questions.addAll(repository.loadQuestions(breeds))
             if (breeds.isNotEmpty() && _questions.isNotEmpty()) {
                 _navEvent.emit(NavigationEvent.QUIZ)
             } else {

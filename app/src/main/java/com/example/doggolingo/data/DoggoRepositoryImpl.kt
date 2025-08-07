@@ -5,9 +5,14 @@ import coil.ImageLoader
 import coil.request.ImageRequest
 import com.example.doggolingo.domain.DoggoRepository
 import com.example.doggolingo.domain.models.Question
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import javax.inject.Inject
 
 class DoggoRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context,
     private val doggoApi: DoggoApi,
     private val imageLoader: ImageLoader
 ) : DoggoRepository {
@@ -21,22 +26,26 @@ class DoggoRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadQuestions(context: Context, breeds: Set<String>): List<Question> {
-        val questions = mutableListOf<Question>()
-        for (i in 0 until 5) {
-            val choiceBreeds = breeds.shuffled().take(4)
-            val answerBreed = choiceBreeds.random()
-            val response = doggoApi.getRandomImage(answerBreed)
-            if (response.isSuccessful) {
-                response.body()?.message?.let {
-                    questions.add(Question(i, it, choiceBreeds, answerBreed))
-                    val request = ImageRequest.Builder(context)
-                        .data(it)
-                        .build()
-                    imageLoader.enqueue(request) // preload image
+    override suspend fun loadQuestions(breeds: Set<String>): List<Question> = coroutineScope {
+        val questions = (0 until 5).map {
+            async {
+                val choiceBreeds = breeds.shuffled().take(4)
+                val answerBreed = choiceBreeds.random()
+                val response = doggoApi.getRandomImage(answerBreed)
+                if (response.isSuccessful) {
+                    response.body()?.message?.let {
+                        val request = ImageRequest.Builder(context)
+                            .data(it)
+                            .build()
+                        imageLoader.execute(request) // preload all images
+                        Question(it, choiceBreeds, answerBreed)
+                    }
+                } else {
+                    null
                 }
             }
         }
-        return questions
+
+        questions.awaitAll().filterNotNull()
     }
 }

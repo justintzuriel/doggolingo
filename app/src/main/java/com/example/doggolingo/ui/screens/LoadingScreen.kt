@@ -9,14 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.example.doggolingo.ui.DoggoViewModel
 
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier, viewModel: DoggoViewModel) {
-    val context = LocalContext.current.applicationContext
     DisposableEffect(Unit) {
-        viewModel.loadQuiz(context)
+        viewModel.loadQuiz()
         onDispose {
             viewModel.cancelQuizLoad()
         }
