@@ -11,6 +11,9 @@ import androidx.compose.ui.unit.dp
 import com.example.doggolingo.ui.models.AnswerResult
 import com.example.doggolingo.ui.models.AnswerState
 
+/**
+ * A stylized button that changes color depending on the current AnswerResult
+ */
 @Composable
 fun AnswerButton(
     text: String,
@@ -63,5 +66,8 @@ fun AnswerButton(
 }
 
 enum class ButtonState {
-    AVAILABLE, UNAVAILABLE, CORRECT, WRONG
+    AVAILABLE,      // not answered yet
+    UNAVAILABLE,    // answered, unselected wrong choice
+    CORRECT,        // answered, correct choice
+    WRONG           // answered, selected wrong choice (if answered incorrectly)
 }

@@ -12,6 +12,9 @@ import com.example.doggolingo.ui.screens.QuizScreen
 import com.example.doggolingo.ui.screens.ResultScreen
 import com.example.doggolingo.ui.screens.TitleScreen
 
+/**
+ * Sets up navigation and handles NavigationEvents
+ */
 @Composable
 fun DoggoNavigation() {
     val navController = rememberNavController()

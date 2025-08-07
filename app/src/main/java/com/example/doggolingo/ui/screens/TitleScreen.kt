@@ -33,7 +33,7 @@ fun TitleScreen(modifier: Modifier = Modifier, viewModel: DoggoViewModel) {
         Spacer(modifier = Modifier.height(32.dp))
         Button(
             modifier = Modifier.width(200.dp),
-            onClick = dropUnlessStarted { viewModel.onStart() }
+            onClick = dropUnlessStarted { viewModel.onStartClicked() }
         ) {
             Text("Start")
         }

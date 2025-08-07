@@ -33,7 +33,7 @@ class DoggoRepositoryImpl @Inject constructor(
                     val request = ImageRequest.Builder(context)
                         .data(it)
                         .build()
-                    imageLoader.enqueue(request)
+                    imageLoader.enqueue(request) // preload image
                 }
             }
         }

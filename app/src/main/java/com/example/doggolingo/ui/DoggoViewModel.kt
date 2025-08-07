@@ -19,6 +19,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * Manages quiz state, user answers, and navigation
+ */
 @HiltViewModel
 class DoggoViewModel @Inject constructor(val repository: DoggoRepository) : ViewModel() {
 
@@ -42,15 +45,17 @@ class DoggoViewModel @Inject constructor(val repository: DoggoRepository) : View
         private set
 
     private var breeds = setOf<String>()
+
     private var loadJob: Job? = null
 
-    fun onStart() {
+    fun onStartClicked() {
         viewModelScope.launch {
             _navEvent.emit(NavigationEvent.LOADING)
         }
     }
 
     fun loadQuiz(context: Context) {
+        cancelQuizLoad()
         loadJob = viewModelScope.launch {
             breeds = repository.getAllBreeds()
             resetQuizState()
@@ -65,6 +70,7 @@ class DoggoViewModel @Inject constructor(val repository: DoggoRepository) : View
 
     fun cancelQuizLoad() {
         loadJob?.cancel()
+        loadJob = null
     }
 
     fun checkAnswer(id: Int, choice: String) {
