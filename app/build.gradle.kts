@@ -39,6 +39,12 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
+        }
+    }
 }
 
 dependencies {
@@ -59,10 +65,8 @@ dependencies {
     implementation(libs.retrofit2.converter.gson)
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
-    testImplementation(libs.junit)
     testImplementation(libs.junit.jupiter)
     testImplementation(libs.mockk)
-    testImplementation(kotlin("test"))
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.cash.turbine)
     androidTestImplementation(libs.androidx.junit)
