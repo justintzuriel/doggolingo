@@ -6,9 +6,8 @@ import com.example.doggolingo.domain.DoggoRepository
 import com.example.doggolingo.domain.models.Question
 import com.example.doggolingo.ui.models.AnswerResult
 import com.example.doggolingo.ui.models.AnswerState
-import com.example.doggolingo.ui.models.NavigationEvent
+import com.example.doggolingo.ui.models.NavigationTarget
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -26,8 +25,8 @@ class DoggoViewModel @Inject constructor(
     private val repository: DoggoRepository
 ) : ViewModel() {
 
-    private val _navEvent = MutableSharedFlow<NavigationEvent>()
-    val navEvent: SharedFlow<NavigationEvent>
+    private val _navEvent = MutableSharedFlow<NavigationTarget>()
+    val navEvent: SharedFlow<NavigationTarget>
         get() = _navEvent.asSharedFlow()
 
     private val _answerResult = MutableSharedFlow<AnswerResult>()
@@ -47,31 +46,21 @@ class DoggoViewModel @Inject constructor(
 
     private var breeds = setOf<String>()
 
-    private var loadJob: Job? = null
-
     fun onStartClicked() {
         viewModelScope.launch {
-            _navEvent.emit(NavigationEvent.LOADING)
+            _navEvent.emit(NavigationTarget.LOADING)
         }
     }
 
-    fun loadQuiz() {
-        cancelQuizLoad()
+    suspend fun loadQuiz() {
         resetQuizState()
-        loadJob = viewModelScope.launch {
-            breeds = repository.getAllBreeds()
-            _questions.addAll(repository.loadQuestions(breeds))
-            if (breeds.isNotEmpty() && _questions.isNotEmpty()) {
-                _navEvent.emit(NavigationEvent.QUIZ)
-            } else {
-                _navEvent.emit(NavigationEvent.TITLE)
-            }
+        breeds = repository.getAllBreeds()
+        _questions.addAll(repository.loadQuestions(breeds))
+        if (breeds.isNotEmpty() && _questions.isNotEmpty()) {
+            _navEvent.emit(NavigationTarget.QUIZ)
+        } else {
+            _navEvent.emit(NavigationTarget.TITLE)
         }
-    }
-
-    fun cancelQuizLoad() {
-        loadJob?.cancel()
-        loadJob = null
     }
 
     fun checkAnswer(id: Int, choice: String) {
@@ -91,24 +80,24 @@ class DoggoViewModel @Inject constructor(
             if (_currentQuestionId.value < _questions.size - 1) {
                 _currentQuestionId.value += 1
             } else {
-                _navEvent.emit(NavigationEvent.RESULT)
+                _navEvent.emit(NavigationTarget.RESULT)
             }
         }
     }
 
     fun onTryAgain() {
         viewModelScope.launch {
-            _navEvent.emit(NavigationEvent.LOADING)
+            _navEvent.emit(NavigationTarget.LOADING)
         }
     }
 
     fun onBackToTitle() {
         viewModelScope.launch {
-            _navEvent.emit(NavigationEvent.TITLE)
+            _navEvent.emit(NavigationTarget.TITLE)
         }
     }
 
-    fun resetQuizState() {
+    private fun resetQuizState() {
         score = 0
         _currentQuestionId.value = 0
         _questions.clear()

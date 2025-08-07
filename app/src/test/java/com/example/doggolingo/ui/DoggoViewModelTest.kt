@@ -5,7 +5,7 @@ import com.example.doggolingo.domain.DoggoRepository
 import com.example.doggolingo.domain.models.Question
 import com.example.doggolingo.ui.models.AnswerResult
 import com.example.doggolingo.ui.models.AnswerState
-import com.example.doggolingo.ui.models.NavigationEvent
+import com.example.doggolingo.ui.models.NavigationTarget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -39,7 +39,7 @@ class DoggoViewModelTest {
     fun `onStartClicked emits LOADING`() = runTest {
         viewModel.navEvent.test {
             viewModel.onStartClicked()
-            assertEquals(NavigationEvent.LOADING, awaitItem())
+            assertEquals(NavigationTarget.LOADING, awaitItem())
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -49,22 +49,8 @@ class DoggoViewModelTest {
     fun `loadQuiz populates questions & emits QUIZ`() = runTest {
         viewModel.navEvent.test {
             viewModel.loadQuiz()
-            testScheduler.advanceUntilIdle()
             assertEquals(viewModel.questions.size, 2)
-            assertEquals(NavigationEvent.QUIZ, awaitItem())
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `cancelQuizLoad results in no questions or events`() = runTest {
-        viewModel.navEvent.test {
-            viewModel.loadQuiz()
-            viewModel.cancelQuizLoad()
-            testScheduler.advanceUntilIdle()
-            expectNoEvents()
-            assert(viewModel.questions.isEmpty())
+            assertEquals(NavigationTarget.QUIZ, awaitItem())
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -74,7 +60,6 @@ class DoggoViewModelTest {
     fun `checkAnswer with correct answer increases score & emits CORRECT`() = runTest {
         viewModel.answerResult.test {
             viewModel.loadQuiz()
-            testScheduler.advanceUntilIdle()
             assertEquals(0, viewModel.score)
 
             viewModel.checkAnswer(0, "A")
@@ -90,7 +75,6 @@ class DoggoViewModelTest {
     fun `checkAnswer with wrong answer does not increase score & emits WRONG`() = runTest {
         viewModel.answerResult.test {
             viewModel.loadQuiz()
-            testScheduler.advanceUntilIdle()
             assertEquals(0, viewModel.score)
 
             viewModel.checkAnswer(0, "B")
@@ -124,7 +108,7 @@ class DoggoViewModelTest {
             repeat(2) {
                 viewModel.nextQuestion()
             }
-            assertEquals(NavigationEvent.RESULT, awaitItem())
+            assertEquals(NavigationTarget.RESULT, awaitItem())
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -134,7 +118,7 @@ class DoggoViewModelTest {
     fun `onTryAgain emits LOADING`() = runTest {
         viewModel.navEvent.test {
             viewModel.onTryAgain()
-            assertEquals(NavigationEvent.LOADING, awaitItem())
+            assertEquals(NavigationTarget.LOADING, awaitItem())
 
             cancelAndIgnoreRemainingEvents()
         }
@@ -144,27 +128,7 @@ class DoggoViewModelTest {
     fun `onBackToTitle emits TITLE`() = runTest {
         viewModel.navEvent.test {
             viewModel.onBackToTitle()
-            assertEquals(NavigationEvent.TITLE, awaitItem())
-
-            cancelAndIgnoreRemainingEvents()
-        }
-    }
-
-    @Test
-    fun `resetQuizState resets all quiz variables`() = runTest {
-        viewModel.currentQuestionId.test {
-            viewModel.loadQuiz()
-            skipItems(1)
-            viewModel.checkAnswer(0, "A")
-            viewModel.nextQuestion()
-            assertEquals(1, awaitItem())
-            assert(viewModel.questions.isNotEmpty())
-            assertEquals(viewModel.score, 1)
-
-            viewModel.resetQuizState()
-            assertEquals(0, awaitItem())
-            assert(viewModel.questions.isEmpty())
-            assertEquals(viewModel.score, 0)
+            assertEquals(NavigationTarget.TITLE, awaitItem())
 
             cancelAndIgnoreRemainingEvents()
         }

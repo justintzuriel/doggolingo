@@ -22,6 +22,7 @@ fun AnswerButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+
     val state = when {
         result.state == AnswerState.NONE -> ButtonState.AVAILABLE
         text == answer -> ButtonState.CORRECT
